@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Admin — Visualization Presentations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F0F0E;
+    --paper:#FAFAF7;
+    --paper-dim:#F1EFE8;
+    --marker:#C9472B;
+    --gold:#B89B5E;
+    --green:#3D5A4C;
+    --grey:#8A8578;
+    --line:#D8D4C8;
+    --sheet-max: 900px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-dim);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:80px;
+  }
+  header.app-head{
+    background:var(--ink); color:var(--paper);
+    padding:18px 28px;
+  }
+  .head-inner{ max-width:var(--sheet-max); margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+  .brand{ font-family:'Archivo Expanded',sans-serif; font-weight:800; font-size:15px; letter-spacing:.02em; text-transform:uppercase; }
+  .brand span{ color:var(--gold); }
+  #signout-btn{ display:none; }
+  .btn{
+    font-family:'Archivo',sans-serif; font-weight:600; font-size:12px; letter-spacing:.03em; text-transform:uppercase;
+    padding:9px 18px; border-radius:2px; border:1px solid var(--line); background:var(--paper); color:var(--ink);
+    cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--ink); }
+  .btn-primary{ background:var(--marker); color:var(--paper); border-color:var(--marker); }
+  .btn-primary:hover{ opacity:.9; }
+  .btn-ghost{ background:transparent; color:var(--paper); border-color:rgba(255,255,255,.3); }
+  .btn-ghost:hover{ border-color:var(--paper); }
+  .btn-danger{ background:transparent; color:var(--marker); border-color:var(--marker); }
+
+  main{ max-width:var(--sheet-max); margin:0 auto; padding:34px 28px; }
+
+  /* ---- login ---- */
+  #login-screen{ max-width:360px; margin:80px auto; text-align:center; }
+  #login-screen h1{ font-family:'Archivo Expanded',sans-serif; font-size:20px; margin-bottom:24px; }
+  #login-screen input{
+    width:100%; padding:11px 13px; margin-bottom:10px; border:1px solid var(--line); font-family:'Inter',sans-serif; font-size:13px;
+    background:var(--paper);
+  }
+  #login-error{ color:var(--marker); font-size:12px; margin-top:8px; display:none; font-family:'IBM Plex Mono',monospace; }
+
+  /* ---- project list ---- */
+  .section-title{ font-family:'Archivo Expanded',sans-serif; font-weight:700; font-size:19px; margin:0 0 18px; }
+  .toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+
+  .project-card{
+    background:var(--paper); border:1px solid var(--line); padding:16px 18px; margin-bottom:10px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .project-card .pname{ font-family:'Archivo',sans-serif; font-weight:600; font-size:14px; }
+  .project-card .pmeta{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--grey); margin-top:3px; }
+  .project-card .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  #project-list-empty{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--grey); }
+
+  /* ---- form ---- */
+  #form-panel{ display:none; background:var(--paper); border:1px solid var(--line); padding:26px; margin-top:24px; }
+  #form-panel.open{ display:block; }
+  #form-panel h2{ font-family:'Archivo Expanded',sans-serif; font-size:18px; margin:0 0 20px; }
+  label{ display:block; font-family:'Archivo',sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--grey); margin:16px 0 5px; }
+  input[type=text], input[type=date]{
+    width:100%; padding:9px 11px; border:1px solid var(--line); font-family:'Inter',sans-serif; font-size:13px; background:var(--paper-dim);
+  }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .slug-preview{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--grey); margin-top:4px; }
+
+  .img-group{ margin-top:26px; }
+  .img-group h3{ font-family:'Archivo',sans-serif; font-size:13px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:14px; }
+  .img-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; }
+  .img-slot{ border:1px dashed var(--line); padding:10px; text-align:center; }
+  .img-slot .slot-label{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--grey); margin-bottom:8px; display:block; }
+  .img-slot img{ width:100%; aspect-ratio:4/3; object-fit:cover; margin-bottom:8px; background:var(--paper-dim); display:none; }
+  .img-slot img.has-src{ display:block; }
+  .img-slot input[type=file]{ font-size:10px; width:100%; }
+
+  .text-field{ margin-bottom:14px; }
+  .text-field label{ margin:0 0 5px; }
+  .text-field textarea{
+    width:100%; padding:9px 11px; border:1px solid var(--line); font-family:'Inter',sans-serif; font-size:13px;
+    background:var(--paper-dim); resize:vertical; min-height:60px;
+  }
+
+  .form-footer{ display:flex; gap:10px; justify-content:flex-end; margin-top:28px; border-top:1px solid var(--line); padding-top:20px; }
+
+  #save-status{ font-family:'IBM Plex Mono',monospace; font-size:12px; margin-top:14px; display:none; }
+  #save-status.ok{ color:var(--green); }
+  #save-status.err{ color:var(--marker); }
+
+  .link-box{ display:flex; gap:8px; align-items:center; margin-top:14px; }
+  .link-box input{ flex:1; }
+</style>
+</head>
+<body>
+
+<header class="app-head">
+  <div class="head-inner">
+    <div class="brand">STUDIO <span>/</span> PROJECT ADMIN</div>
+    <button class="btn btn-ghost" id="signout-btn" onclick="signOut()">Sign out</button>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <h1>Admin Login</h1>
+  <input id="login-email" type="text" placeholder="Email" autocomplete="username">
+  <input id="login-password" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="login()">Log in</button>
+  <p id="login-error"></p>
+</div>
+
+<!-- DASHBOARD -->
+<main id="dashboard" style="display:none;">
+
+  <div class="toolbar">
+    <h1 class="section-title">Projects</h1>
+    <button class="btn btn-primary" onclick="openForm()">+ New Project</button>
+  </div>
+
+  <div id="project-list"></div>
+  <p id="project-list-empty" style="display:none;">No projects yet. Click "+ New Project" to add one.</p>
+
+  <div id="form-panel">
+    <h2 id="form-title">New Project</h2>
+
+    <div class="field-row">
+      <div>
+        <label>Project Name</label>
+        <input id="f-name" type="text" placeholder="Riverside House" oninput="updateSlugPreview()">
+      </div>
+      <div>
+        <label>Client Name</label>
+        <input id="f-client" type="text" placeholder="Jane Smith">
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label>Project Date</label>
+        <input id="f-date" type="text" placeholder="June 2026">
+      </div>
+      <div>
+        <label>URL slug</label>
+        <input id="f-slug" type="text" placeholder="riverside-house" oninput="slugManuallyEdited=true">
+        <div class="slug-preview">Link will be: <span id="slug-preview-text">view.html?project=</span></div>
+      </div>
+    </div>
+
+    <div class="img-group">
+      <h3>Interior deck</h3>
+      <div class="img-grid" id="grid-interior"></div>
+    </div>
+    <div class="img-group">
+      <h3>Exterior deck</h3>
+      <div class="img-grid" id="grid-exterior"></div>
+    </div>
+    <div class="img-group">
+      <h3>Full project deck (additional shots)</h3>
+      <div class="img-grid" id="grid-combined"></div>
+    </div>
+
+    <div class="img-group">
+      <h3>Interior deck — text</h3>
+      <div id="text-interior"></div>
+    </div>
+    <div class="img-group">
+      <h3>Exterior deck — text</h3>
+      <div id="text-exterior"></div>
+    </div>
+    <div class="img-group">
+      <h3>Full project deck — text</h3>
+      <div id="text-combined"></div>
+    </div>
+    <div class="img-group">
+      <h3>Studio / closing info</h3>
+      <div id="text-studio"></div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn" onclick="closeForm()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+    <p id="save-status"></p>
+    <div class="link-box" id="link-box" style="display:none;">
+      <input id="link-output" type="text" readonly>
+      <button class="btn" onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+<script>
+  // ── CONFIG — same project as view.html ──
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const BUCKET = 'project-images';
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Every image slot used across the three decks, grouped for the form.
+  // (slug, label) — slugs must match the data-slug attributes in view.html.
+  const IMAGE_GROUPS = {
+    interior: [
+      ['interior-hero-render', 'Hero render (full-bleed)'],
+      ['flooring', 'Flooring'],
+      ['wall-finish', 'Wall finish'],
+      ['key-furniture', 'Key furniture'],
+      ['light-fixture', 'Light fixture'],
+      ['natural-light-render', 'Natural light render'],
+      ['artificial-light-render', 'Artificial light render'],
+      ['second-angle-e-g-from-doorway', 'Second angle (e.g. from doorway)'],
+      ['untextured-clay-render', 'Untextured / clay render'],
+      ['final-lit-textured-render', 'Final lit + textured render'],
+    ],
+    exterior: [
+      ['site-aerial-plan-with-north-arrow-camera', 'Site / aerial plan'],
+      ['exterior-hero-render', 'Hero render (full-bleed)'],
+      ['front-elevation', 'Front elevation'],
+      ['side-elevation', 'Side elevation'],
+      ['rear-elevation', 'Rear elevation'],
+      ['cladding', 'Cladding'],
+      ['glazing', 'Glazing'],
+      ['landscaping', 'Landscaping'],
+      ['entry-detail', 'Entry detail'],
+      ['daytime-render', 'Daytime render'],
+      ['twilight-render-lights-on', 'Twilight render, lights on'],
+      ['hero-or-street-level-shot-with-people-ca', 'Human scale shot'],
+    ],
+    combined: [
+      ['site-plan-with-north-arrow-camera-marker', 'Site plan'],
+      ['main-exterior-hero', 'Main exterior hero'],
+      ['secondary-exterior-angle', 'Secondary exterior angle'],
+      ['landscape', 'Landscape (combined deck)'],
+      ['entry', 'Entry (combined deck)'],
+      ['sectional-or-dollhouse-view-render-bridg', 'Sectional / dollhouse cutaway'],
+      ['entry-hallway', 'Entry / hallway'],
+      ['living-main-space', 'Living / main space'],
+      ['bedroom-secondary-space', 'Bedroom / secondary space'],
+      ['furniture', 'Furniture (combined deck)'],
+      ['lighting', 'Lighting (combined deck)'],
+      ['daytime-interior-or-exterior', 'Daytime — interior or exterior'],
+      ['night-twilight-interior-or-exterior', 'Night/twilight — interior or exterior'],
+    ],
+  };
+
+  // Free-text fields, grouped for the form. Keys must match the
+  // data-field attributes in view.html.
+  const TEXT_FIELDS = {
+    interior: [
+      ['int-room-name', 'Room / Space Name', 'text'],
+      ['int-address', 'Project Address', 'text'],
+      ['int-sqft', 'Square Footage / Room Count', 'text'],
+      ['int-scope', 'Scope of Interior Deck', 'text'],
+      ['int-vantage-note', 'Why This Vantage Point', 'textarea'],
+      ['int-material-note', 'Material Spec Note', 'textarea'],
+      ['int-angle-note', 'Why This Second Angle', 'textarea'],
+    ],
+    exterior: [
+      ['ext-facade-name', 'Building / Facade Name', 'text'],
+      ['ext-address', 'Project Address', 'text'],
+      ['ext-gfa', 'GFA / Storeys / Typology', 'text'],
+      ['ext-scope', 'Scope of Exterior Deck', 'text'],
+      ['ext-orientation-note', 'Orientation Logic Note', 'textarea'],
+    ],
+    combined: [
+      ['combined-address', 'Project Address', 'text'],
+      ['combined-typology', 'Typology / Size / Storeys', 'text'],
+      ['combined-deliverables', 'Deliverables (Cover Sheet)', 'text'],
+      ['combined-overview', 'Project Overview Paragraph', 'textarea'],
+    ],
+    studio: [
+      ['closing-deliverables', 'Deliverables (Closing Sheet)', 'text'],
+      ['studio-name', 'Studio Name', 'text'],
+      ['studio-email', 'Email', 'text'],
+      ['studio-phone', 'Phone', 'text'],
+      ['studio-website', 'Website', 'text'],
+      ['footer-studio-name', 'Footer Studio Name', 'text'],
+    ],
+  };
+
+  let currentEditId = null;   // null = creating new
+  let currentImages = {};     // existing slug -> url, for the project being edited
+  let currentTexts = {};      // existing field-key -> value, for the project being edited
+  let slugManuallyEdited = false;
+
+  // ── AUTH ──
+  async function login() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      return;
+    }
+    showDashboard();
+  }
+
+  async function signOut() {
+    await sb.auth.signOut();
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('signout-btn').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'block';
+  }
+
+  async function showDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('signout-btn').style.display = 'inline-block';
+    loadProjectList();
+  }
+
+  (async function checkSession() {
+    const { data } = await sb.auth.getSession();
+    if (data.session) showDashboard();
+  })();
+
+  // ── PROJECT LIST ──
+  async function loadProjectList() {
+    const { data, error } = await sb.from('projects').select('*').order('created_at', { ascending: false });
+    const listEl = document.getElementById('project-list');
+    const emptyEl = document.getElementById('project-list-empty');
+    listEl.innerHTML = '';
+
+    if (error || !data || data.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    data.forEach(p => {
+      const link = window.location.href.replace('admin.html', 'view.html') + '?project=' + p.slug;
+      const card = document.createElement('div');
+      card.className = 'project-card';
+      card.innerHTML = `
+        <div>
+          <div class="pname">${p.project_name}</div>
+          <div class="pmeta">${p.client_name || '—'} · /${p.slug}</div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="copyToClipboard('${link}', this)">Copy link</button>
+          <button class="btn" onclick="editProject('${p.id}')">Edit</button>
+          <button class="btn btn-danger" onclick="deleteProject('${p.id}', '${p.project_name.replace(/'/g, "\\'")}')">Delete</button>
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
+
+  async function copyToClipboard(text, btn) {
+    await navigator.clipboard.writeText(text);
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = original, 1200);
+  }
+
+  async function deleteProject(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    await sb.from('projects').delete().eq('id', id);
+    loadProjectList();
+  }
+
+  // ── FORM ──
+  function buildImageGrids() {
+    Object.entries(IMAGE_GROUPS).forEach(([group, items]) => {
+      const grid = document.getElementById('grid-' + group);
+      grid.innerHTML = '';
+      items.forEach(([slug, label]) => {
+        const slot = document.createElement('div');
+        slot.className = 'img-slot';
+        slot.innerHTML = `
+          <span class="slot-label">${label}</span>
+          <img id="preview-${slug}" alt="">
+          <input type="file" accept="image/*" data-slug="${slug}" onchange="previewFile(this)">
+        `;
+        grid.appendChild(slot);
+      });
+    });
+  }
+  buildImageGrids();
+
+  function buildTextFields() {
+    Object.entries(TEXT_FIELDS).forEach(([group, items]) => {
+      const container = document.getElementById('text-' + group);
+      container.innerHTML = '';
+      items.forEach(([key, label, type]) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'text-field';
+        const field = type === 'textarea'
+          ? `<textarea id="text-input-${key}" data-field="${key}"></textarea>`
+          : `<input type="text" id="text-input-${key}" data-field="${key}">`;
+        wrap.innerHTML = `<label>${label}</label>${field}`;
+        container.appendChild(wrap);
+      });
+    });
+  }
+  buildTextFields();
+
+  function previewFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const img = document.getElementById('preview-' + input.dataset.slug);
+    img.src = URL.createObjectURL(file);
+    img.classList.add('has-src');
+  }
+
+  function slugify(text) {
+    return text.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  function updateSlugPreview() {
+    if (!slugManuallyEdited) {
+      document.getElementById('f-slug').value = slugify(document.getElementById('f-name').value);
+    }
+    document.getElementById('slug-preview-text').textContent =
+      'view.html?project=' + (document.getElementById('f-slug').value || '…');
+  }
+
+  function openForm() {
+    currentEditId = null;
+    currentImages = {};
+    currentTexts = {};
+    slugManuallyEdited = false;
+    document.getElementById('form-title').textContent = 'New Project';
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-client').value = '';
+    document.getElementById('f-date').value = '';
+    document.getElementById('f-slug').value = '';
+    document.querySelectorAll('#form-panel img[id^="preview-"]').forEach(img => { img.src=''; img.classList.remove('has-src'); });
+    document.querySelectorAll('#form-panel input[type=file]').forEach(i => i.value = '');
+    document.querySelectorAll('[id^="text-input-"]').forEach(i => i.value = '');
+    document.getElementById('save-status').style.display = 'none';
+    document.getElementById('link-box').style.display = 'none';
+    document.getElementById('form-panel').classList.add('open');
+    document.getElementById('form-panel').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function closeForm() {
+    document.getElementById('form-panel').classList.remove('open');
+  }
+
+  async function editProject(id) {
+    const { data, error } = await sb.from('projects').select('*').eq('id', id).single();
+    if (error || !data) return alert('Could not load project.');
+
+    currentEditId = id;
+    currentImages = data.images || {};
+    currentTexts = data.texts || {};
+    slugManuallyEdited = true;
+
+    document.getElementById('form-title').textContent = 'Edit — ' + data.project_name;
+    document.getElementById('f-name').value = data.project_name || '';
+    document.getElementById('f-client').value = data.client_name || '';
+    document.getElementById('f-date').value = data.project_date || '';
+    document.getElementById('f-slug').value = data.slug || '';
+    updateSlugPreview();
+
+    document.querySelectorAll('#form-panel input[type=file]').forEach(i => i.value = '');
+    Object.entries(currentImages).forEach(([slug, url]) => {
+      const img = document.getElementById('preview-' + slug);
+      if (img) { img.src = url; img.classList.add('has-src'); }
+    });
+
+    document.querySelectorAll('[id^="text-input-"]').forEach(i => i.value = '');
+    Object.entries(currentTexts).forEach(([key, val]) => {
+      const input = document.getElementById('text-input-' + key);
+      if (input) input.value = val;
+    });
+
+    document.getElementById('save-status').style.display = 'none';
+    document.getElementById('link-box').style.display = 'none';
+    document.getElementById('form-panel').classList.add('open');
+    document.getElementById('form-panel').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function saveProject() {
+    const statusEl = document.getElementById('save-status');
+    const name = document.getElementById('f-name').value.trim();
+    const client = document.getElementById('f-client').value.trim();
+    const date = document.getElementById('f-date').value.trim();
+    const slug = slugify(document.getElementById('f-slug').value.trim());
+
+    if (!name || !slug) {
+      statusEl.textContent = 'Project name and slug are required.';
+      statusEl.className = 'err';
+      statusEl.style.display = 'block';
+      return;
+    }
+
+    statusEl.textContent = 'Uploading images…';
+    statusEl.className = '';
+    statusEl.style.display = 'block';
+
+    const images = { ...currentImages };
+    const fileInputs = Array.from(document.querySelectorAll('#form-panel input[type=file]')).filter(i => i.files[0]);
+
+    try {
+      for (const input of fileInputs) {
+        const file = input.files[0];
+        const ext = file.name.split('.').pop();
+        const path = `${slug}/${input.dataset.slug}.${ext}`;
+        const { error: upErr } = await sb.storage.from(BUCKET).upload(path, file, { upsert: true });
+        if (upErr) throw upErr;
+        const { data: pub } = sb.storage.from(BUCKET).getPublicUrl(path);
+        images[input.dataset.slug] = pub.publicUrl + '?t=' + Date.now(); // cache-bust on replace
+      }
+
+      statusEl.textContent = 'Saving project…';
+
+      const texts = { ...currentTexts };
+      document.querySelectorAll('[id^="text-input-"]').forEach(input => {
+        texts[input.dataset.field] = input.value.trim();
+      });
+
+      const row = {
+        slug, project_name: name, client_name: client, project_date: date,
+        images, texts, updated_at: new Date().toISOString(),
+      };
+
+      let result;
+      if (currentEditId) {
+        result = await sb.from('projects').update(row).eq('id', currentEditId).select().single();
+      } else {
+        result = await sb.from('projects').insert(row).select().single();
+      }
+      if (result.error) throw result.error;
+
+      currentEditId = result.data.id;
+      currentImages = images;
+      currentTexts = texts;
+
+      statusEl.textContent = 'Saved ✓';
+      statusEl.className = 'ok';
+
+      const link = window.location.href.replace('admin.html', 'view.html') + '?project=' + slug;
+      document.getElementById('link-output').value = link;
+      document.getElementById('link-box').style.display = 'flex';
+
+      loadProjectList();
+    } catch (err) {
+      statusEl.textContent = 'Error: ' + err.message;
+      statusEl.className = 'err';
+    }
+  }
+
+  function copyLink() {
+    const input = document.getElementById('link-output');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+  }
+</script>
+
+</body>
+</html>
